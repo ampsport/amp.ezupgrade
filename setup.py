@@ -22,23 +22,28 @@ setup(name='amp.ezupgrade',
       # http://pypi.python.org/pypi?%3Aaction=list_classifiers
       classifiers=[
         "Programming Language :: Python",
-	"Framework :: Plone",
+        "Framework :: Plone",
         ],
       keywords='genericsetup upgrade plone profiles',
       author='IGS, Ltd.',
       author_email='eleddy@ampsport.com',
       url='https://github.com/digiyouadmin/amp.ezupgrade',
       license='gpl',
-      packages=find_packages('src'),
-      package_dir = {'': 'src'},
+      packages=find_packages(exclude=['ez_setup']),
       namespace_packages=['amp'],
       include_package_data=True,
       zip_safe=False,
       install_requires=[
           'setuptools',
           # -*- Extra requirements: -*-
+          'Zope2',
+          'Products.GenericSetup',
       ],
       entry_points="""
       # -*- Entry points: -*-
+
+      [z3c.autoinclude.plugin]
+      target = plone
       """,
+
       )
