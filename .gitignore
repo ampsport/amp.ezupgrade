@@ -1,0 +1,7 @@
+*.pyc
+~.*
+*~
+.installed.cfg
+.mr.developer.cfg
+*.egg-info
+.DS_Store
