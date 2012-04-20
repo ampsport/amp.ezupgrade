@@ -7,8 +7,8 @@ from zope.interface import Interface
 import zope.schema
 import zope.configuration
 from Products.CMFPlone.interfaces import IMigratingPloneSiteRoot
-from Products.GenericSetup.upgrade import UpgradeStep
-from Products.GenericSetup.zcml import _registerUpgradeStep
+from Products.GenericSetup.upgrade import UpgradeStep, UpgradeDepends
+from Products.GenericSetup.upgrade import _registerUpgradeStep
 from Products.GenericSetup.interfaces import EXTENSION
 from Products.GenericSetup.registry import _profile_registry
 
@@ -94,11 +94,6 @@ def registerUpgradeProfile(_context, name=None, title=None,
                            handler=None, checker=None):
 
     product = _context.package.__name__
-    if directory is None:
-        directory = 'profiles/%s' % name
-
-    if description is None:
-        description = u''
 
     if not source:
         source = '*'
@@ -107,14 +102,17 @@ def registerUpgradeProfile(_context, name=None, title=None,
         destination = '0'
 
     if name is None:
-        name = '%s %s' % (source, destination)
+        name = '%sto%s' % (source, destination)
 
-    if title is None:
-        title = u"Profile '%s' from '%s'" % (name, product)
+    if directory is None:
+        directory = 'profiles/%s' % name
 
-    if not handler:
-        # TODO: default handler
-        pass
+    if not title:
+        title = u"Upgrade profile for %s:%s" % (name, product)
+
+    if not description:
+        description = u"Upgrade %s from '%s' to '%s'" % (product,
+                                                      source, destination)
 
     _context.action(
         discriminator=('registerUpgradeProfile', product, name),
@@ -128,10 +126,18 @@ def _registerUpgradeProfile(name, title, description, directory, product,
                             provides, for_, profile,
                             source, destination, handler,
                             sortkey, checker):
-    _profile_registry.registerProfile(name, title, description, directory,
-                                      product, provides, for_)
-    step = UpgradeStep(title, profile, source, destination, description,
-                       handler, checker, sortkey)
+    import_profile = "%s:%s" % (product, name)
+    if import_profile not in _profile_registry.listProfiles():
+        _profile_registry.registerProfile(name, title, description,
+                                directory, product, provides, for_)
+
+    if handler:
+        step = UpgradeStep(title, profile, source, destination, description,
+                           handler, checker, sortkey)
+    else:
+        step = UpgradeDepends(title, profile, source, destination,
+                              description,
+                              import_profile=import_profile,
+                              checker=checker, sortkey=sortkey)
 
     _registerUpgradeStep(step)
-
