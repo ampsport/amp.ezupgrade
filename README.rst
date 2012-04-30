@@ -59,36 +59,22 @@ Registering an upgrade step profile involves the following::
 This is insane in a million ways, and definitely doesn't scale. This product
 aims to make these things easier, step by step.
 
-How to use
-----------
+After
+-----
 
 You can either add amp.ezuprade as an egg to your buildout, or 
 make it a required product in the setup.py of your egg. I suggest 
 the latter because the syntax of your zcml files will depend on it.
 
-You can start using it right away. A recommended setup will be listed 
-beelow.
+You can start using as soon as you add the following line to a zcml 
+file::
 
+   <include package="amp.ezupgrade" file="meta.zcml" />
 
-Details
--------
+This line must be loaded at some point before using the new directive. 
+After that, you are golden.
 
-The most verbose way of adding a profile::
-
-   <genericsetup:registerUpgradeProfile
-        name="2to3"
-        title="Add new Javascript dependencies"
-        description="This will include bootstrap, as well as google api"
-        directory="profiles/2to3"
-        for="Products.CMFPlone.interfaces.IMigratingPloneSiteRoot"
-        provides="Products.GenericSetup.interfaces.EXTENSION"
-        source="1"
-        destination="2"
-        handler="my.package.upgrade1to2"
-        profile="my.package:default"
-        />
-
-If you want to skpi a lot of that, leaving items blank choses 
+If you want to skip a lot of lines, leaving items blank choses 
 convention over configuration::
 
     <genericsetup:registerUpgradeProfile
@@ -106,6 +92,22 @@ is that you are working with an extension profile and that it will
 be attached to the plone site migration interface. You may override
 as much or as little as you like.
 
+The most verbose way of adding a profile::
+
+   <genericsetup:registerUpgradeProfile
+        name="2to3"
+        title="Add new Javascript dependencies"
+        description="This will include bootstrap, as well as google api"
+        directory="profiles/2to3"
+        for="Products.CMFPlone.interfaces.IMigratingPloneSiteRoot"
+        provides="Products.GenericSetup.interfaces.EXTENSION"
+        source="1"
+        destination="2"
+        handler="my.package.upgrade1to2"
+        profile="my.package:default"
+        />
+
+
 Recommended Setup
 -----------------
 In your products profiles directory, create another folder called 
@@ -117,7 +119,7 @@ In your products profiles directory, create another folder called
        /upgrades
 
 Then make sure to register that folder in zcml.
-XXX paste that code here
+XXX:paste that code here
 
 In your upgrades folder, you will need a configure.zcml, and then 
 you can start to list your profile folders from there.  In the 
@@ -151,6 +153,8 @@ And you configure.zcml will look like::
       destination="3"
       profile="my.product:default"
      />
+
+    <include package="amp.ezupgrade" />
 
     <genericsetup:registerUpgradeProfile
       title="Add new viewlet for pants"

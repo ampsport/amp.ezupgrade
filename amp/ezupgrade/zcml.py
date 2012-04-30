@@ -92,7 +92,6 @@ def registerUpgradeProfile(_context, name=None, title=None,
                            source=None, destination=None,
                            sort_key=None, profile=None,
                            handler=None, checker=None):
-
     product = _context.package.__name__
 
     if not source:
