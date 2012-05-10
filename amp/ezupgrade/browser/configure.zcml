@@ -1,0 +1,28 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:plone="http://namespaces.plone.org/plone"
+    xmlns:z3c="http://namespaces.zope.org/z3c"
+    i18n_domain="amp.ezupgrade">
+
+  <browser:resourceDirectory
+      name="amp.ezupgrade.javascripts"
+      directory="javascripts"
+      permission="zope.Public"
+      />
+
+  <browser:resourceDirectory
+      name="amp.ezupgrade.stylesheets"
+      directory="stylesheets"
+      permission="zope.Public"
+      />
+
+  <browser:page
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+      name="prefs_install_products_form"
+      class=".qi.ManageProductsView"
+      permission="cmf.ManagePortal"
+      template="templates/prefs_install_products_form.pt"
+      />
+  
+</configure>
