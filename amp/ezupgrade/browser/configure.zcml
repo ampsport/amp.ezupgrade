@@ -19,10 +19,10 @@
 
   <browser:page
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"
-      name="prefs_install_products_form"
+      name="manage_products"
       class=".qi.ManageProductsView"
       permission="cmf.ManagePortal"
-      template="templates/prefs_install_products_form.pt"
+      template="templates/manage_products_form.pt"
       />
   
 </configure>

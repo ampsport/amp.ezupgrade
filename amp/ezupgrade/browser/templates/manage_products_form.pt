@@ -1,0 +1,140 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      lang="en"
+      metal:use-macro="context/prefs_main_template/macros/master">
+
+<body>
+
+
+<metal:main metal:fill-slot="prefs_configlet_main" i18n:domain="plone">
+
+    <h1 class="documentFirstHeading"
+        i18n:translate="">Add-ons</h1>
+
+    <div class="documentDescription"
+       i18n:translate="">
+      This is the Add-on configuration section, you can activate and deactivate
+      add-ons in the lists below.
+    </div>
+
+    <div id="content-core">
+        <a href=""
+           class="link-parent"
+           tal:attributes="href string:${context/portal_url}/plone_control_panel"
+           i18n:translate="label_up_to_plone_setup">
+          Up to Site Setup
+        </a>
+
+        <p class="discreet" i18n:translate="">
+          To make new add-ons show up here, add them to your buildout
+          configuration, run buildout, and restart the server process.
+          For detailed instructions see
+          <span i18n:name="third_party_product">
+          <a i18n:translate="" href="http://plone.org/documentation/tutorial/buildout/installing-a-third-party-product">
+            Installing a third party add-on
+          </a>
+          </span>.
+        </p>
+
+        <form style="float: left;"
+              action="installProducts"
+              tal:attributes="action string:TODO"
+              method="post">
+
+            <fieldset style="margin-right: 1em;">
+                <legend i18n:translate="">Available add-ons</legend>
+
+                <ul class="configlets">
+                    <li tal:define="products view/installable_products;"
+                        tal:repeat="product products">
+                    <tal:product define="pid product/id">
+
+                        <input class="noborder"
+                               type="checkbox"
+                               name="products:list"
+                               tal:attributes="value pid;
+                                               id pid;" />
+
+                        <label for="" tal:attributes="for pid">
+
+                            <tal:block replace="structure context/product_icon.png"/>
+
+                            <span tal:replace="product/title">
+                              Add-on Name
+                            </span>
+                        </label>
+
+                        <ul class="configletDetails"
+                            tal:define="product_file python:container.portal_quickinstaller.getProductFile(pid);
+                                        product_desc python:container.portal_quickinstaller.getProductDescription(pid);
+                                        has_error product/hasError"
+                            tal:condition="python: product_file or product_desc or has_error">
+                            <li class="configletDescription"
+                                tal:condition="product_desc"
+                                tal:content="product_desc">
+                                    add-on description
+                            </li>
+                        </ul>
+                    </tal:product>
+                    </li>
+                </ul>
+
+                <input class="context"
+                       type="submit"
+                       i18n:attributes="value label_activate;"
+                       value="Activate"
+                       />
+            </fieldset>
+        </form>
+
+        <form style="float: left;"
+              action="uninstallProducts"
+              tal:define="products view/installed_products"
+              tal:condition="products"
+              tal:attributes="action string:TODO" method="post">
+
+            <fieldset>
+                <legend i18n:translate="">Activated add-ons</legend>
+
+                <ul class="configlets">
+                    <tal:products  tal:repeat="product products">
+                    <li tal:define="pid product/id;">
+
+                        <input class="noborder"
+                               type="checkbox"
+                               name="products:list"
+                               tal:attributes="value pid;
+                                               id pid;"
+                               tal:condition="not: product/isLocked"
+                               />
+
+                        <ul class="configletDetails"
+                            tal:define="product_file python:container.portal_quickinstaller.getProductFile(pid);
+                                        product_desc python:container.portal_quickinstaller.getProductDescription(pid);">
+                            <li class="configletDescription"
+                                tal:condition="product_desc"
+                                tal:content="product_desc">
+                                    add-on description
+                            </li>
+                        </ul>
+                    </li>
+                    </tal:products>
+                </ul>
+
+                <input class="context"
+                       type="submit"
+                       i18n:attributes="value label_deactivate;"
+                       value="Deactivate"
+                       name="uninstallProducts:method"
+                       />
+            </fieldset>
+        </form>
+
+        <div class="visualClear" id="clear-space-after-broken"><!-- --></div>
+    </div>
+</metal:main>
+
+</body>
+</html>
