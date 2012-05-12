@@ -24,5 +24,13 @@
       permission="cmf.ManagePortal"
       template="templates/manage_products_form.pt"
       />
+
+   <browser:page
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+      name="upgrade_products"
+      class=".qi.UpgradeProductsView"
+      permission="cmf.ManagePortal"
+      />
+
   
 </configure>
