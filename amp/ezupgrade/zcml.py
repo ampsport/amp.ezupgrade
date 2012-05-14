@@ -129,7 +129,6 @@ def _registerUpgradeProfile(name, title, description, directory, product,
     if import_profile not in _profile_registry.listProfiles():
         _profile_registry.registerProfile(name, title, description,
                                 directory, product, provides, for_)
-
     if handler:
         step = UpgradeStep(title, profile, source, destination, description,
                            handler, checker, sortkey)
@@ -137,6 +136,6 @@ def _registerUpgradeProfile(name, title, description, directory, product,
         step = UpgradeDepends(title, profile, source, destination,
                               description,
                               import_profile=import_profile,
-                              checker=checker, sortkey=sortkey)
+                              checker=checker, sortkey=sortkey, run_deps=False)
 
     _registerUpgradeStep(step)
