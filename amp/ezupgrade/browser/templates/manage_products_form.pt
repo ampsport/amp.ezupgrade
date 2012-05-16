@@ -38,7 +38,8 @@
           </span>.
         </p>
 
-        <div tal:define="products   python:view.list_products(upgrades=True, installed=False, uninstalled=False)"
+        <div tal:define="products   python:view.list_products(upgrades=True, installed=False, uninstalled=False);
+                         num_products  python:len(products)"
              id="upgrade-products">
            <h2>Upgrades</h2>
            <div tal:condition="not:products" id="up-to-date-message">
@@ -90,7 +91,7 @@
                                            type="submit"
                                            value="product"
                                            name="form.submitted"
-                                           tal:attributes="value pid;"/>
+                                           tal:attributes="value string:Upgrade ${pid};"/>
                                        </span>
                                    </span>
                                 </form>
@@ -105,7 +106,7 @@
                         </ul>
                     </li>
                     </tal:products>
-                    <li  condition="python:len(products > 1">
+                    <li  tal:condition="python:num_products > 1">
                       <form action="upgrade_products" method="post">
                          <tal:products  tal:repeat="product products">
                          <input type="hidden" value="product"
