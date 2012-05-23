@@ -6,5 +6,21 @@
 
     <includeDependencies package="." />
     <include package=".browser" />
-  
+    <include package=".upgrades" />
+
+  <genericsetup:registerProfile
+      name="default"
+      title="amp.ezupgrade"
+      directory="profiles/default"
+      description="Front-end product upgrade infrastructure for Plone add on developers"
+      provides="Products.GenericSetup.interfaces.EXTENSION"
+      />
+
+  <genericsetup:registerProfile
+      name="uninstall"
+      title="Uninstall amp.ezupgrade"
+      directory="profiles/uninstall"
+      description="Uninstalls amp.ezupgrade front-end features. Please remove product to zcml directives."
+      provides="Products.GenericSetup.interfaces.EXTENSION"
+      />
 </configure>
