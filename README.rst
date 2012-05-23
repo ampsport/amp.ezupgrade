@@ -144,7 +144,7 @@ After a few upgrades, the setup would start to look like::
 
 And you configure.zcml will look like::
 
-<configure
+   <configure
     xmlns="http://namespaces.zope.org/zope"
     xmlns:genericsetup="http://namespaces.zope.org/genericsetup">  
     <genericsetup:registerUpgradeProfile
@@ -162,7 +162,7 @@ And you configure.zcml will look like::
       destination="4"
       profile="my.product:default"
      />
-</configure>
+    </configure>
 
 
 Holy Moly
