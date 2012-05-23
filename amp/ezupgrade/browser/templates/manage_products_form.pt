@@ -19,7 +19,8 @@
       add-ons in the lists below.
     </div>
 
-    <div id="content-core">
+    <div id="content-core"
+         tal:define="products  view/get_addons">
         <a href=""
            class="link-parent"
            tal:attributes="href string:${context/portal_url}/plone_control_panel"
@@ -38,7 +39,7 @@
           </span>.
         </p>
 
-        <div tal:define="products   python:view.list_products(upgrades=True, installed=False, uninstalled=False);
+        <div tal:define="products   view/get_upgrades;
                          num_products  python:len(products)"
              id="upgrade-products">
            <h2>Upgrades</h2>
@@ -128,52 +129,50 @@
             </div>
         </div>
 
-        <form method="post">
-            <fieldset style="margin-right: 1em;">
-                <legend i18n:translate="">Available add-ons</legend>
+        <div tal:define="products   view/get_available;
+                         num_products  python:len(products)"
+             id="install-products">
+
+                <h2 i18n:translate="">Available add-ons</h2>
 
                 <ul class="configlets">
-                    <li tal:define="products view/installable_products;"
-                        tal:repeat="product products">
+                    <li tal:repeat="product products">
                     <tal:product define="pid product/id">
-
-                        <input class="noborder"
-                               type="checkbox"
-                               name="products:list"
-                               tal:attributes="value pid;
-                                               id pid;" />
-
                         <label for="" tal:attributes="for pid">
-
                             <tal:block replace="structure context/product_icon.png"/>
-
                             <span tal:replace="product/title">
                               Add-on Name
                             </span>
                         </label>
 
-                        <ul class="configletDetails"
-                            tal:define="product_file python:container.portal_quickinstaller.getProductFile(pid);
-                                        product_desc python:container.portal_quickinstaller.getProductDescription(pid);
-                                        has_error product/hasError"
-                            tal:condition="python: product_file or product_desc or has_error">
+                        <ul class="configletDetails">
                             <li class="configletDescription"
-                                tal:condition="product_desc"
-                                tal:content="product_desc">
+                                tal:condition="product/description"
+                                tal:content="product/description">
                                     add-on description
+                            </li>
+                            <li class="configletActio">
+                                <form action="install_products" method="post">      
+                                   <input type="hidden"
+                                           name="install_products:list"
+                                           tal:attributes="value string:profile-${product/install_profile/id};" />
+                                   <span i18n:translate="label_product_install_action">
+                                      <span i18n:name="install_button">
+                                         <input class="context"
+                                           type="submit"
+                                           value="product"
+                                           name="form.submitted"
+                                           tal:attributes="value string:Install ${pid};"/>
+                                       </span>
+                                   </span>
+                                </form>
                             </li>
                         </ul>
                     </tal:product>
                     </li>
                 </ul>
+        </div>
 
-                <input class="context"
-                       type="submit"
-                       i18n:attributes="value label_activate;"
-                       value="Activate"
-                       />
-            </fieldset>
-        </form>
 
 
         <form action="uninstallProducts"
