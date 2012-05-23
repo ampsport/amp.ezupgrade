@@ -3,7 +3,7 @@ from Products.CMFCore.utils import getToolByName
 import logging
 from Products.Five.browser import BrowserView
 from Products.statusmessages.interfaces import IStatusMessage
-from Products.GenericSetup import EXTENSION, BASE
+from Products.GenericSetup import EXTENSION
 
 
 class ManageProductsView(BrowserView):
@@ -19,17 +19,6 @@ class ManageProductsView(BrowserView):
 
     def __call__(self):
         return self.index()
-
-    def installable_products(self):
-        return self.qi.listInstallableProducts()
-
-    def installed_products(self):
-        products = self.qi.listInstalledProducts()
-        valid = []
-        for product in products:
-            if not product['isHidden'] and not product['isLocked']:
-                valid.append(product)
-        return valid
 
     def get_addons(self, apply_filter=None, product_name=None):
         """
@@ -67,7 +56,11 @@ class ManageProductsView(BrowserView):
                 upgrade_info = None
                 p_obj = self.qi._getOb(product_id, None)
                 if p_obj:
-                    installed = True
+                    # TODO; if you install then uninstall, the
+                    # presence lingers in the qi. Before it is
+                    # run the very first time, it doesn't exist
+                    # at all in the qi. How remove the qi from this?
+                    installed = p_obj.isInstalled()
                     upgrade_info = self.qi.upgradeInfo(product_id)
                 else:
                     # XXX: holy rabbit hole batman!
@@ -133,10 +126,10 @@ class UpgradeProductsView(BrowserView):
         qi = getToolByName(self.context, 'portal_quickinstaller')
         products = self.request.get('prefs_reinstallProducts', None)
         if products:
+            messages = IStatusMessage(self.request)
             for product in products:
                 qi.upgradeProduct(product)
-                msg = _(u'Upgraded ${product}!', mapping={'product': product})
-                messages = IStatusMessage(self.request)
+                msg = _(u'Upgraded %s!' % product)
                 messages.addStatusMessage(msg, type="info")
 
         purl = getToolByName(self.context, 'portal_url')()
@@ -155,10 +148,10 @@ class InstallProductsView(BrowserView):
         profiles = self.request.get('install_products')
         msg_type = 'info'
         if profiles:
+            messages = IStatusMessage(self.request)
             for profile in profiles:
                 setupTool.runAllImportStepsFromProfile(profile)
-                msg = _(u'Installed %s!', mapping={'product': profile})
-                messages = IStatusMessage(self.request)
+                msg = _(u'Installed %s!' % profile)
                 messages.addStatusMessage(msg, type=msg_type)
 
         purl = getToolByName(self.context, 'portal_url')()
@@ -167,21 +160,21 @@ class InstallProductsView(BrowserView):
 
 class UninstallProductsView(BrowserView):
     def __call__(self):
-        setupTool = getToolByName(self.context, 'portal_setup')
-        profiles = self.request.get('uninstall_products')
+        # XXX: Need to call the uninstall profile
+        qi = getToolByName(self.context, 'portal_quickinstaller')
+        products = self.request.get('uninstall_products')
         msg_type = 'info'
-        if profiles:
-            for profile in profiles:
+        if products:
+            messages = IStatusMessage(self.request)
+            # 1 at a time for better error messages
+            for product in products:
                 try:
-                    profile_id = "profile-%s:uninstall" % (profile)
-                    msg = _(u'%s uninstalled.',
-                            mapping={'product': profile_id})
+                    qi.uninstallProducts(products=[product, ])
+                    msg = _(u'Uninstalled %s.' % product)
                 except Exception, e:
-                    msg = _(u'Error uninstalling %s. Please contact maintainer.'
-                            % profile)
-                    logging.error("%s : %s" % (msg, e))
+                    logging.error("Could not uninstall %s: %s" % (product, e))
                     msg_type = 'error'
-                messages = IStatusMessage(self.request)
+                    msg = _(u'Error uninstalling %s' % product)
                 messages.addStatusMessage(msg, type=msg_type)
 
         purl = getToolByName(self.context, 'portal_url')()

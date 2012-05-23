@@ -151,7 +151,7 @@
                                 tal:content="product/description">
                                     add-on description
                             </li>
-                            <li class="configletActio">
+                            <li class="configletAction">
                                 <form action="install_products" method="post">      
                                    <input type="hidden"
                                            name="install_products:list"
@@ -173,50 +173,49 @@
                 </ul>
         </div>
 
+        <div tal:define="products   view/get_installed;
+                         num_products  python:len(products)"
+             id="install-products">
 
-
-        <form action="uninstallProducts"
-              tal:define="products view/installed_products"
-              tal:condition="products"
-              tal:attributes="action string:TODO" method="post">
-
-            <fieldset>
-                <legend i18n:translate="">Activated add-ons</legend>
+                <h2 i18n:translate="">Activated add-ons</h2>
 
                 <ul class="configlets">
-                    <tal:products  tal:repeat="product products">
-                    <li tal:define="pid product/id;">
+                    <li tal:repeat="product products">
+                    <tal:product define="pid product/id">
+                        <label for="" tal:attributes="for pid">
+                            <tal:block replace="structure context/product_icon.png"/>
+                            <span tal:replace="product/title">
+                              Add-on Name
+                            </span>
+                        </label>
 
-                        <input class="noborder"
-                               type="checkbox"
-                               name="products:list"
-                               tal:attributes="value pid;
-                                               id pid;"
-                               />
-
-                        <ul class="configletDetails"
-                            tal:define="product_file python:container.portal_quickinstaller.getProductFile(pid);
-                                        product_desc python:container.portal_quickinstaller.getProductDescription(pid);">
+                        <ul class="configletDetails">
                             <li class="configletDescription"
-                                tal:condition="product_desc"
-                                tal:content="product_desc">
+                                tal:condition="product/description"
+                                tal:content="product/description">
                                     add-on description
                             </li>
+                            <li class="configletAction">
+                                <form action="uninstall_products" method="post">      
+                                   <input type="hidden"
+                                           name="uninstall_products:list"
+                                           tal:attributes="value pid;" />
+                                   <span i18n:translate="label_product_uninstall_action">
+                                      <span i18n:name="uninstall_button">
+                                         <input class="context"
+                                           type="submit"
+                                           value="product"
+                                           name="form.submitted"
+                                           tal:attributes="value string:Deactivate ${pid};"/>
+                                       </span>
+                                   </span>
+                                </form>
+                            </li>
                         </ul>
+                    </tal:product>
                     </li>
-                    </tal:products>
                 </ul>
-
-                <input class="context"
-                       type="submit"
-                       i18n:attributes="value label_deactivate;"
-                       value="Deactivate"
-                       name="uninstallProducts:method"
-                       />
-            </fieldset>
-        </form>
-
-        <div class="visualClear" id="clear-space-after-broken"><!-- --></div>
+        </div>
     </div>
 </metal:main>
 
