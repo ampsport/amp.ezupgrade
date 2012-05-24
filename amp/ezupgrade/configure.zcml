@@ -5,6 +5,7 @@
     i18n_domain="ezupgrade">
 
     <includeDependencies package="." />
+    <include file="meta.zcml" />
     <include package=".browser" />
     <include package=".upgrades" />
 
