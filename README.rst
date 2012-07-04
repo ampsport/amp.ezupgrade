@@ -110,16 +110,22 @@ The most verbose way of adding a profile::
 
 Recommended Setup
 -----------------
-In your products profiles directory, create another folder called 
+In your products base directory, create another folder called 
 "upgrades". The layout would then most likely look like this::
 
     /profiles
        /default
        /uninstall
-       /upgrades
+    /upgrades
+       /profiles
+       __init__.py  # this is a package
+       configure.zcml  # all new stuff goes here
+       setuphandlers.py  # if you want it to do fancy stuff
 
-Then make sure to register that folder in zcml.
-XXX:paste that code here
+Then make sure to register that folder in the root configure.zcml::
+
+    <include package=".upgrades" />
+
 
 In your upgrades folder, you will need a configure.zcml, and then 
 you can start to list your profile folders from there.  In the 
@@ -146,8 +152,9 @@ And you configure.zcml will look like::
 
    <configure
     xmlns="http://namespaces.zope.org/zope"
-    xmlns:genericsetup="http://namespaces.zope.org/genericsetup">  
-    <include package="amp.ezupgrade" />
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"> 
+
+    <include package="amp.ezupgrade" file="meta.zcml"/>
 
     <genericsetup:registerUpgradeProfile
       title="Remove search in context"
