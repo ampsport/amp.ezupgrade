@@ -147,15 +147,14 @@ And you configure.zcml will look like::
    <configure
     xmlns="http://namespaces.zope.org/zope"
     xmlns:genericsetup="http://namespaces.zope.org/genericsetup">  
+    <include package="amp.ezupgrade" />
+
     <genericsetup:registerUpgradeProfile
       title="Remove search in context"
       source="2"
       destination="3"
       profile="my.product:default"
      />
-
-    <include package="amp.ezupgrade" />
-
     <genericsetup:registerUpgradeProfile
       title="Add new viewlet for pants"
       source="3"
