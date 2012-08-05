@@ -76,6 +76,10 @@ class ManageProductsView(BrowserView):
                     if profile_type != 'default':
                         continue
                 elif apply_filter == 'upgrades':
+                    # weird p.a.discussion integration behavior
+                    if type(upgrade_info) == bool:
+                        continue
+
                     if not upgrade_info['available']:
                         continue
 
