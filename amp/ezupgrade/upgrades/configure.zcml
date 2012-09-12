@@ -1,12 +1,6 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
     xmlns:genericsetup="http://namespaces.zope.org/genericsetup">
-    <genericsetup:registerUpgradeProfile
-      title="Remove search in context"
-      source="2"
-      destination="3"
-      profile="my.product:default"
-     />
 
     <genericsetup:registerUpgradeProfile
       title="New quickinstaller that will eventually use only upgrades"
@@ -14,4 +8,12 @@
       destination="2"
       profile="amp.ezupgrade:default"
      />
+
+    <genericsetup:registerUpgradeProfile
+      title="Add run upgrades option for portal administrators"
+      source="2"
+      destination="3"
+      profile="amp.ezupgrade:default"
+     />
+
 </configure>
