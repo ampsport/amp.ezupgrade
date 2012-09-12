@@ -64,8 +64,7 @@
                                 tal:content="product/description">
                                     add-on description
                             </li>
-                            <li tal:define="upgrade_info product/upgrade_info"
-                                tal:condition="upgrade_info/required">
+                            <li tal:define="upgrade_info product/upgrade_info">
                               <img tal:replace="structure context/error_icon.png" />
                                 <span i18n:translate="">
                                   This addon has been upgraded.
