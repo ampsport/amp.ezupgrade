@@ -38,6 +38,7 @@ setup(name='amp.ezupgrade',
           # -*- Extra requirements: -*-
           'Zope2',
           'Products.GenericSetup',
+          'five.grok',
       ],
       entry_points="""
       # -*- Entry points: -*-
