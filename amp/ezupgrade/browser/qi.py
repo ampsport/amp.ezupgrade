@@ -4,6 +4,7 @@ import logging
 from Products.Five.browser import BrowserView
 from Products.statusmessages.interfaces import IStatusMessage
 from Products.GenericSetup import EXTENSION
+from plone.memoize import view
 
 
 class ManageProductsView(BrowserView):
@@ -20,21 +21,8 @@ class ManageProductsView(BrowserView):
     def __call__(self):
         return self.index()
 
-    def get_addons(self, apply_filter=None, product_name=None):
-        """
-        100% based on generic setup profiles now. Kinda.
-        For products magic, use the zope quickinstaller I guess.
-
-        @filter:= 'installed': only products that are installed
-                  'upgrades': only products with upgrades
-                  'available': products that are not installed bit
-                               could be
-
-        @product_name:= a specific product id that you want info on. Do
-                   not pass in the profile type, just the name
-
-        XXX: I am pretty sure we don't want base profiles ...
-        """
+    @view.memoize
+    def marshall_addons(self):
         addons = {}
 
         profiles = self.ps.listProfileInfo()
@@ -46,8 +34,6 @@ class ManageProductsView(BrowserView):
             if len(pid_parts) != 2:
                 logging.error("Profile with id '%s' is invalid." % pid)
             product_id = profile['product']
-            if product_name and product_name != product_id:
-                continue
             profile_type = pid_parts[-1]
             if product_id not in addons:
                 # get some basic information on the product
@@ -67,22 +53,6 @@ class ManageProductsView(BrowserView):
                     if not self.qi.isProductInstallable(product_id):
                         continue
 
-                if apply_filter in ['installed', 'upgrades'] and not installed:
-                    continue
-                elif apply_filter == 'available':
-                    if installed:
-                        continue
-                    # filter out upgrade profiles
-                    if profile_type != 'default':
-                        continue
-                elif apply_filter == 'upgrades':
-                    # weird p.a.discussion integration behavior
-                    if type(upgrade_info) == bool:
-                        continue
-
-                    if not upgrade_info['available']:
-                        continue
-
                 addons[product_id] = {
                             'id': product_id,
                             'title': product_id,
@@ -94,6 +64,7 @@ class ManageProductsView(BrowserView):
                             'uninstall_profile': None,
                             'is_installed': installed,
                             'upgrade_info': upgrade_info,
+                            'profile_type': profile_type,
                             }
             product = addons[product_id]
             if profile_type == 'default':
@@ -109,6 +80,49 @@ class ManageProductsView(BrowserView):
                     product['other_profiles'].append(profile)
         return addons
 
+    def get_addons(self, apply_filter=None, product_name=None):
+        """
+        100% based on generic setup profiles now. Kinda.
+        For products magic, use the zope quickinstaller I guess.
+
+        @filter:= 'installed': only products that are installed
+                  'upgrades': only products with upgrades
+                  'available': products that are not installed bit
+                               could be
+
+        @product_name:= a specific product id that you want info on. Do
+                   not pass in the profile type, just the name
+
+        XXX: I am pretty sure we don't want base profiles ...
+        """
+        addons = self.marshall_addons()
+        filtered = {}
+        for product_id, addon in addons.items():
+            if product_name and addon['id'] != product_name:
+                continue
+
+            installed = addon['is_installed']
+            if apply_filter in ['installed', 'upgrades'] and not installed:
+                continue
+            elif apply_filter == 'available':
+                if installed:
+                    continue
+                # filter out upgrade profiles
+                if addon['profile_type'] != 'default':
+                    continue
+            elif apply_filter == 'upgrades':
+                # weird p.a.discussion integration behavior
+                upgrade_info = addon['upgrade_info']
+                if type(upgrade_info) == bool:
+                    continue
+
+                if not upgrade_info['available']:
+                    continue
+
+            filtered[product_id] = addon
+
+        return filtered
+
     def get_upgrades(self):
         """
         Return a list of products that have upgrades on tap
@@ -121,20 +135,33 @@ class ManageProductsView(BrowserView):
     def get_available(self):
         return self.get_addons(apply_filter='available').values()
 
+    def upgrade_product(self, product):
+        qi = getToolByName(self.context, 'portal_quickinstaller')
+        products = self.request.get('prefs_reinstallProducts', None)
+        messages = IStatusMessage(self.request)
+        try:
+            qi.upgradeProduct(product)
+            messages.addStatusMessage(_(u'Upgraded %s!' % product),
+                                      type="info")
+            return True
+        except Exception, e:
+            logging.error("Could not upgrade %s: %s" % (product, e))
+            messages.addStatusMessage(_(u'Error upgrading %s.' % product),
+                                      type="error")
+
+        return False
+
 
 class UpgradeProductsView(BrowserView):
     """
     Upgrade a product... or twenty
     """
     def __call__(self):
-        qi = getToolByName(self.context, 'portal_quickinstaller')
+        qi = ManageProductsView(self.context, self.request)
         products = self.request.get('prefs_reinstallProducts', None)
         if products:
-            messages = IStatusMessage(self.request)
             for product in products:
-                qi.upgradeProduct(product)
-                msg = _(u'Upgraded %s!' % product)
-                messages.addStatusMessage(msg, type="info")
+                qi.upgrade_product(product)
 
         purl = getToolByName(self.context, 'portal_url')()
         self.request.response.redirect(purl + '/manage_products')
@@ -154,6 +181,7 @@ class InstallProductsView(BrowserView):
         if profiles:
             messages = IStatusMessage(self.request)
             for profile in profiles:
+                # TODO: find out where this is and don't run already activated profiles
                 setupTool.runAllImportStepsFromProfile(profile)
                 msg = _(u'Installed %s!' % profile)
                 messages.addStatusMessage(msg, type=msg_type)
