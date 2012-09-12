@@ -8,6 +8,37 @@ of creating profiles and registering as upgrade steps, and also
 makes a fair amount of assumptions to make it very easy to add new 
 profiles. 
 
+
+Running upgrade
+===============
+Just adding the product to your buildout will give you access to 
+the zcml directives for upgrade steps. If you want extra features, 
+you can install amp.ezupgrade into your site.
+
+If you install the actual amp.ezupgrade product, you get a few 
+things. A new quick installer which handle mass upgrades. There is
+also a script the runs all upgrades from each plone site at 
+/mysite/@@run_upgrades and then a script which runs all upgrades for all 
+sites in a zope instance at /@@up2date. This script can also be run 
+from the command line::
+
+    ./bin/instance run src/amp.ezupgrade/scripts/up2date.py 
+
+Still TODO here is to check for failure on any sites and abort if one 
+goes awry. or at least have a switch.
+
+
+Uaing Latest
+============
+In addition to below, I reommend using the 'latest' keyword that is 
+built into CMFPlone in metadata.xml instead of the version number. It 
+will automatically increment the profile number available for upgrade 
+to be the highest one on the system. It just saves one more step.
+
+
+Writing Upgrade Steps
+=====================
+
 Before
 ------
 Registering an upgrade step profile involves the following::
