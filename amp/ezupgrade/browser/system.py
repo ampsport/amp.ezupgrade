@@ -1,5 +1,6 @@
 from five import grok
 from Products.CMFPlone.interfaces import IPloneSiteRoot
+from zope.component.hooks import setSite
 from qi import ManageProductsView
 from Products.statusmessages.interfaces import IStatusMessage
 from Products.CMFPlone import PloneMessageFactory as _
@@ -58,6 +59,7 @@ class UpgradeProductsForAllSites(grok.View):
             if getattr(child, 'portal_type', None) == 'Plone Site':
                 logging.debug("Running all upgrades for %s..." % child.id)
                 transaction.begin()
+                setSite(child)
                 view = UpgradeProductsForSite(child, self.request)
                 view.upgrade()
                 transaction.get().note("Running all upgrades")
