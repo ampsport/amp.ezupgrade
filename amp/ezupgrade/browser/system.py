@@ -58,11 +58,17 @@ class UpgradeProductsForAllSites(grok.View):
         for child in self.context.getChildNodes():
             if getattr(child, 'portal_type', None) == 'Plone Site':
                 logging.debug("Running all upgrades for %s..." % child.id)
-                transaction.begin()
-                setSite(child)
-                view = UpgradeProductsForSite(child, self.request)
-                view.upgrade()
-                transaction.get().note("Running all upgrades")
-                transaction.commit()
-                upgraded += 1
+                try:
+                    transaction.begin()
+                    import pdb;pdb.set_trace()
+                    setSite(child)
+                    view = UpgradeProductsForSite(child, self.request)
+                    view.upgrade()
+                    transaction.get().note("Running all upgrades")
+                    transaction.commit()
+                    upgraded += 1
+                except Exception, e:
+                    logging.error("Exception upgrading %s: %s" % (child.id, e))
+                except:
+                    logging.error("Unknown error upgrading %s" % child.id)
         return upgraded
