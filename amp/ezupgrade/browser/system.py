@@ -60,7 +60,6 @@ class UpgradeProductsForAllSites(grok.View):
                 logging.debug("Running all upgrades for %s..." % child.id)
                 try:
                     transaction.begin()
-                    import pdb;pdb.set_trace()
                     setSite(child)
                     view = UpgradeProductsForSite(child, self.request)
                     view.upgrade()
