@@ -18,6 +18,20 @@
       />
 
   <browser:page
+      name="recook-resources"
+      for="OFS.interfaces.IApplication"
+      class=".system.RecookResources"
+      permission="zope2.View"
+      />
+
+  <browser:page
+      name="plone-upgrades"
+      for="OFS.interfaces.IApplication"
+      class=".system.RunPloneUpgrades"
+      permission="zope2.View"
+      />
+
+  <browser:page
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"
       name="manage_products"
       class=".qi.ManageProductsView"
