@@ -5,8 +5,63 @@ from qi import ManageProductsView
 from Products.statusmessages.interfaces import IStatusMessage
 from Products.CMFPlone import PloneMessageFactory as _
 from OFS.interfaces import IApplication
+from Products.Five.browser import BrowserView
 import logging
 import transaction
+
+
+def getPloneSites(context):
+    for child in context.getChildNodes():
+        if getattr(child, 'portal_type', None) == 'Plone Site':
+            yield child
+
+
+class RecookResources(BrowserView):
+    """
+    Go through all of the plone sites and recook the
+    registries
+    """
+    def __call__(self):
+        """
+        config = getConfiguration()
+        if config.debug_mode:
+            return
+        """
+        logging.info("Recooking registries...")
+        for child in getPloneSites(self.context):
+            logging.info("Recooking %s" % child.id)
+            resources = ['portal_javascripts', 'portal_css']
+            for resource in resources:
+                tool = child.get(resource)
+                tool.cookResources()
+
+        return "Order up!"
+
+
+class RunPloneUpgrades(BrowserView):
+    """
+    Go through all of the plone sites and run any plone
+    upgrades that are pending
+    """
+    def __call__(self):
+        logging.info("Running plone upgrades...")
+        upgrades = 0
+        for site in getPloneSites(self.context):
+            setSite(site)
+            logging.info("Running Plone upgrades for %s..." % site.id)
+            pm = getattr(site, 'portal_migration')
+            try:
+                transaction.begin()
+                pm.upgrade(dry_run=False,)
+                transaction.commit()
+                upgrades += 1
+            except Exception, e:
+                transaction.abort()
+                logging.error("Could not run plone upgrades for %s: %s" %(site.id, e))
+            except:
+                transaction.abort()
+                logging.error("Unknown error running plone upgrades for %s" % site.id)
+        return upgrades
 
 
 class UpgradeProductsForSite(grok.View):
