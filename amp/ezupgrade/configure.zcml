@@ -12,6 +12,9 @@
     <include package=".browser" />
     <include package=".upgrades" />
 
+    <!-- Hide profiles from the add/remove products page -->
+    <utility factory=".integration.NonInstallablePackages" name="amp.ezupgrade" />
+
   <genericsetup:registerProfile
       name="default"
       title="amp.ezupgrade"
