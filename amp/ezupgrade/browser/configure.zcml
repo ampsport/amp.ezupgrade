@@ -5,18 +5,6 @@
     xmlns:z3c="http://namespaces.zope.org/z3c"
     i18n_domain="amp.ezupgrade">
 
-  <browser:resourceDirectory
-      name="amp.ezupgrade.javascripts"
-      directory="javascripts"
-      permission="zope.Public"
-      />
-
-  <browser:resourceDirectory
-      name="amp.ezupgrade.stylesheets"
-      directory="stylesheets"
-      permission="zope.Public"
-      />
-
   <browser:page
       name="recook-resources"
       for="OFS.interfaces.IApplication"
